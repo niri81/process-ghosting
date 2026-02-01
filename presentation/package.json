@@ -1,0 +1,19 @@
+{
+  "name": "process-ghosting-presentation",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "slidev build",
+    "dev": "slidev --open",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@iconify-json/fluent": "^1.2.37",
+    "@iconify-json/line-md": "^1.2.13",
+    "@iconify/vue": "^5.0.0",
+    "@slidev/cli": "^52.11.3",
+    "@slidev/theme-default": "latest",
+    "@slidev/theme-seriph": "latest",
+    "vue": "^3.5.26"
+  }
+}
