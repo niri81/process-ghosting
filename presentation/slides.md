@@ -1,6 +1,6 @@
 ---
 theme: ./theme
-background: /assets/title-bg-2.jpg
+background: /title-bg-2.jpg
 title: Process Ghosting
 info: Hiding from EDRs in plain sight
 # apply UnoCSS classes to the current slide
@@ -30,7 +30,7 @@ Now You See Me, Now Your EDR Doesn't
 
 ---
 layout: image-right
-image: /assets/edr-bg.jpg
+image: /edr-bg.jpg
 ---
 
 # On the Investigation of Rogue Processes
@@ -165,10 +165,10 @@ A --> F --> G --> B --> C --> D
 
 <div class="flex justify-center mt-5">
   <div class="w-140"> <SlidevVideo v-click autoplay controls class="rounded-lg shadow-xl">
-      <source src="./assets/win8-demo.webm" type="video/webm" />
+      <source src="./win8-demo.webm" type="video/webm" />
       <p>
         Your browser does not support videos. You may download it
-        <a href="./assets/win8-demo.webm">here</a>.
+        <a href="./win8-demo.webm">here</a>.
       </p>
     </SlidevVideo>
   </div>
@@ -185,7 +185,7 @@ How is MS Defender tricked?
 
 <div class="flex w-full justify-center mb-7">
 <a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack" class="border-none!" >
-<img src="./assets/ms-defender-process-monitor.png" width="800px" alt="Process Monitor showing system activity while spawning the Ghost thread" />
+<img src="./ms-defender-process-monitor.png" width="800px" alt="Process Monitor showing system activity while spawning the Ghost thread" />
 </a>
 </div>
 
@@ -206,7 +206,7 @@ layout: quote
 
 <!-- MSRC = Microsoft Security Response Center -->
 
-<img v-click src="./assets/msrc.jpeg" alt="" role="presentation" class="absolute w-100 left-30% top-5%" />
+<img v-click src="./msrc.jpeg" alt="" role="presentation" class="absolute w-100 left-30% top-5%" />
 
 <Footnotes>
 <Footnote number=2><a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
@@ -214,7 +214,7 @@ layout: quote
 
 ---
 layout: image-right
-image: /assets/red-team-bg.jpg
+image: /red-team-bg.jpg
 ---
 
 # Post-Exploitation Possibilities for Red Teamers
@@ -244,7 +244,7 @@ layout: center
 
 <div class="flex w-full justify-center">
 <a v-click href="https://tenor.com/view/money-gif-11954040389595096870" class="border-none!" >
-<img src="./assets/money.gif" width="300px" alt="Meme GIF: A man in a suit is holding a stack of money in his hand" />
+<img src="./money.gif" width="300px" alt="Meme GIF: A man in a suit is holding a stack of money in his hand" />
 </a>
 </div>
 
@@ -260,7 +260,7 @@ layout: center
 - Microsoft rolled out a patch for Windows 10/11, old systems are still vulnerable⁴
 
 <div v-click>
-<img src="./assets/win11-shadow-block.png" alt=" Windows 11 Silent Access Error blocking Process Ghosting" class="w-220 my-5" />
+<img src="./win11-shadow-block.png" alt=" Windows 11 Silent Access Error blocking Process Ghosting" class="w-220 my-5" />
 
 `0xc00000bb` = `STATUS_NOT_SUPPORTED`
 </div>
@@ -291,7 +291,7 @@ layout: center
 
 Microsoft Defender for Endpoint:
 
-<img src="./assets/mde-process-ghosting.jpg" alt=" Microsoft Defender for Endpoint detections for variations of process ghosting, herpaderping, and doppelganging." class="w-95 absolute top-32% left-40%" />
+<img src="./mde-process-ghosting.jpg" alt=" Microsoft Defender for Endpoint detections for variations of process ghosting, herpaderping, and doppelganging." class="w-95 absolute top-32% left-40%" />
 
 <Footnotes>
 <Footnote>Image Source: <a href="https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/">https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/</a>, last accessed: 01.02.2026</Footnote>
@@ -301,7 +301,7 @@ Microsoft Defender for Endpoint:
 
 ---
 layout: image-right
-image: /assets/learning-bg.jpg
+image: /learning-bg.jpg
 ---
 
 # What Can We Learn From This?
