@@ -1,10 +1,8 @@
 <script setup>
-import { computed } from "vue";
-
 const props = defineProps({
   color: {
     type: String,
-    default: "black",
+    default: "white",
   },
   width: {
     type: String,
@@ -14,7 +12,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <svg viewBox="0 0 196 73" :width="width">
+  <svg viewBox="0 0 196 73" :width="width" :color="color">
     <path
       class="st0"
       d="M171.2,37.2c-12.8,0-25.6-0.9-38.3,0.2c-38.7,3.1-77.3,5.6-116.1,4.8c-2.5,0-5.1,0.4-7.5-0.1
@@ -25,13 +23,3 @@ const props = defineProps({
     />
   </svg>
 </template>
-
-<style scoped>
-.st0 {
-  fill: dimgrey;
-}
-
-html.dark .st0 {
-  fill: whitesmoke;
-}
-</style>

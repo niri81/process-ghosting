@@ -1,12 +1,8 @@
 ---
 theme: ./theme
-background: https://cover.sli.dev
+background: ./assets/title-bg-2.jpg
 title: Process Ghosting
-info: |
-  ## Slidev Starter Template
-  Presentation slides for developers.
-
-  Learn more at [Sli.dev](https://sli.dev)
+info: Hiding from EDRs in plain sight
 # apply UnoCSS classes to the current slide
 class: text-center
 # https://sli.dev/features/drawing
@@ -20,7 +16,7 @@ mdc: true
 duration: 15min
 ---
 
-# Process Ghosting and Herpaderping
+# Process Ghosting
 
 Now You See Me, Now Your EDR Doesn't
 
@@ -34,6 +30,7 @@ Now You See Me, Now Your EDR Doesn't
 
 ---
 layout: image-right
+image: ./assets/edr-bg.jpg
 ---
 
 # On the Investigation of Rogue Processes
@@ -77,7 +74,7 @@ D --> C
 </div>
 
 ---
-transition: slide-down
+transition: slide-up
 ---
 
 # Process Creation on Windows
@@ -112,9 +109,11 @@ There may be a small time window between process creation and security tools bei
 </v-click>
 
 <v-click>
-<ArrowDraw class="absolute right-55 bottom-75 rotate-145 scale-70" />
+<ArrowDraw class="absolute right-55 bottom-31 rotate-225 scale-70 fill-red-5" />
 </v-click>
 
+---
+layout: two-cols-header
 ---
 
 # Introducing: Process Ghosting
@@ -122,23 +121,31 @@ There may be a small time window between process creation and security tools bei
 
 <div class="mt-10" />
 
+::left::
+
 Gabriel Landau with Elasticsearch in June 2021² :
 
-<div class="scale-300 flex items-center justify-center h-60% w-full">
+- Use Windows file deletion internals to hide process
+  - Files are not accessible anymore in Delete Pending state
+  - Already open handles <span v-mark="{color: 'red'}">remain valid</span>
+
+::right::
+
+<div v-click class="scale-70 flex items-center justify-right h-35% w-105%">
 ```mermaid
-graph LR
-A(Open Executable File)
+graph TD
+A(Open Arbitrary File)
 F(Set Delete-Pending State for File)
 G(Write Malicious Content to File)
 B(Create Image Section)
 C(Close File Handle, i.e. Delete Executable File)
 D(Create Process)
-E(Create Thread for Execution)
 
 A --> F --> G --> B --> C --> D
-E --> D
 ```
 </div>
+
+<div v-mark="{ color: '#ff0000', type: 'box' }" class="absolute top-48 right-25 w-45 h-77" />
 
 <Footnotes>
 <Footnote number=2><a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
@@ -152,6 +159,21 @@ E --> D
 
 <!-- TODO: make better readable -->
 <!-- TODO: include that NtCreateProcessEx was used before Windows Vista -- legacy now -->
+
+---
+
+# Introducing: Process Ghosting
+
+<div class="flex justify-center mt-5">
+  <div class="w-140"> <SlidevVideo v-click autoplay controls class="rounded-lg shadow-xl">
+      <source src="./assets/win8-demo.webm" type="video/webm" />
+      <p>
+        Your browser does not support videos. You may download it
+        <a href="./assets/win8-demo.webm">here</a>.
+      </p>
+    </SlidevVideo>
+  </div>
+</div>
 
 ---
 layout: center
@@ -183,26 +205,41 @@ layout: quote
 
 "We filed a bug report with MSRC on 2021-05-06, including a draft of this blog post, a demonstration video, and source code for a PoC. They responded on 2021-05-10 indicating that this does not meet their bar for servicing, per https://aka.ms/windowscriteria."²
 
+<!-- MSRC = Microsoft Security Response Center -->
+
+<img v-click src="./assets/msrc.jpeg" alt="" role="presentation" class="absolute w-100 left-30% top-5%" />
+
 <Footnotes>
 <Footnote number=2><a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
 </Footnotes>
 
 ---
+layout: image-right
+image: ./assets/red-team-bg.jpg
+---
 
 # Post-Exploitation Possibilities for Red Teamers
+
+<v-clicks>
 
 1. Take tool `$X` and encrypt it
 1. Copy encrypted tool and process ghosting executable to victim PC
 1. Spawn a ghost process, decrypt tool in memory and load it in process image
 1. Tool `$X` can be executed by spawning a thread without EDRs being able to scan it
 
+</v-clicks>
+<div v-click class="mt-5">
+
+e.g.: let `$X` = `mimikatz`
+
+</div>
 
 ---
 layout: center
 ---
 
 # How Can We Defend Against Process Ghosting?
-(After M$ Fix)
+(Initially)
 
 <div class="mt-5" />
 
@@ -212,29 +249,50 @@ layout: center
 </a>
 </div>
 
+<div v-after class="flex w-full justify-center mt-5">
+"Use Elastic Security!"
+</div>
+
 ---
 
 # Current Situation?
 
+- Sysmon can detect Event ID 25 "Process Tampering"
 - Microsoft rolled out a patch for Windows 10/11, old systems are still vulnerable⁴
 
+<div v-click>
 <img src="./assets/win11-shadow-block.png" alt=" Windows 11 Silent Access Error blocking Process Ghosting" class="w-220 my-5" />
 
 `0xc00000bb` = `STATUS_NOT_SUPPORTED`
+</div>
 
 <Footnotes>
-<Footnote number=4>You are problably vulnerable if you have not installed updates since 2021</Footnote>
+<Footnote number=4>You are problably vulnerable if you have not installed updates since 2021 (I hope you have)</Footnote>
 </Footnotes>
+
+<!--
+- Selbe Situation schon ca. ein Jahr früher (Process Herpaderping)
+- Wieder nicht "bar for servicing" erfüllt
+- Sechs Monate später: Sysmon Update um Event zu erkennen -> noch keine Aktion dagegen
+
+- Mittlerweile: Gepatched in Win 10 u. 11
+- Quasi Shadow Block
+
+[click]
+- Beim Ausführen erhält man Fehler, der "STATUS_NOT_SUPPORTED" bedeutet
+- Hier an aktuellem Windows 11 mit selbstgeschriebenen Process Ghosting Tool demonstriert
+-->
 
 ---
 
 # Current Situation?
 
 - Many Antivirus/EDR Companies detect (and block) Process Ghosting
+- Mostly using AI™/ML™
 
 Microsoft Defender for Endpoint:
 
-<img src="./assets/mde-process-ghosting.jpg" alt=" Microsoft Defender for Endpoint detections for variations of process ghosting, herpaderping, and doppelganging." class="w-95 absolute top-32% left-30%" />
+<img src="./assets/mde-process-ghosting.jpg" alt=" Microsoft Defender for Endpoint detections for variations of process ghosting, herpaderping, and doppelganging." class="w-95 absolute top-32% left-40%" />
 
 <Footnotes>
 <Footnote>Image Source: <a href="https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/">https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/</a>, last accessed: 01.02.2026</Footnote>
@@ -243,12 +301,23 @@ Microsoft Defender for Endpoint:
 <!-- CrowdStrike, S1 use Machine Learning, MS Defender Information -->
 
 ---
+layout: image-right
+image: ./assets/learning-bg.jpg
+---
 
 # What Can We Learn From This?
 
+<v-clicks>
+
 - Albeit certain vulnerabilities do not meet the "bar for servicing", they may be dangerous
-- Security Teams are not "fault-proof"
-- Windows still includes functional legacy code for compatibility reasons (e.g. our used `NtProcessCreateEx`³), which might be worth exploiting
+- Windows still includes functional legacy code for compatibility reasons (e.g. our used and undocumented `NtProcessCreateEx`⁵), which might be worth exploiting (for pentests)
+- Getting creative with Windows Internals can uncover <i v-after>interesting</i> vulnerabilities
+
+</v-clicks>
+
+<Footnotes>
+<Footnote number=5><code>NtCreateProcessEx</code> is deemed legacy in current Windows versions</Footnote>
+</Footnotes>
 
 ---
 layout: center
@@ -396,8 +465,8 @@ layout: center
 
 # Thanks for Listening
 
-<span class="font-mono text-green font-800 mr-2" style="animation: flicker 2s infinite, textShadow 3s infinite;">#</span>
-<span class="font-mono text-green font-800" style="animation: flicker 2s infinite, textShadow 3s infinite;">Happy hacking!</span>
-<span class="font-mono text-green font-800 mr-2" style="animation: flicker 2s infinite, textShadow 3s infinite, blinker 1s step-start infinite;">|</span>
+<span class="font-mono text-red-6 font-800 mr-2" style="animation: flicker 4s infinite, textShadow 10s infinite;">#</span>
+<span class="font-mono text-red-6 font-800" style="animation: flicker 4s infinite, textShadow 10s infinite;">Happy hacking!</span>
+<span class="font-mono text-red-6 font-800 mr-2" style="animation: flicker 4s infinite, textShadow 10s infinite, blinker 1s step-start infinite;">|</span>
 
 <PoweredBySlidev class="absolute bottom-10 left-10 b-none" />
