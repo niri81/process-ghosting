@@ -1,6 +1,6 @@
 ---
 theme: ./theme
-background: ./assets/title-bg-2.jpg
+background: /assets/title-bg-2.jpg
 title: Process Ghosting
 info: Hiding from EDRs in plain sight
 # apply UnoCSS classes to the current slide
@@ -30,7 +30,7 @@ Now You See Me, Now Your EDR Doesn't
 
 ---
 layout: image-right
-image: ./assets/edr-bg.jpg
+image: /assets/edr-bg.jpg
 ---
 
 # On the Investigation of Rogue Processes
@@ -157,7 +157,6 @@ A --> F --> G --> B --> C --> D
 <!-- Delete Pending == Cannot be opened by for scanning (STATUS_DELETE_PENDING) -->
 <!-- I/O after deletion == STATUS_FILE_DELETED -->
 
-<!-- TODO: make better readable -->
 <!-- TODO: include that NtCreateProcessEx was used before Windows Vista -- legacy now -->
 
 ---
@@ -215,7 +214,7 @@ layout: quote
 
 ---
 layout: image-right
-image: ./assets/red-team-bg.jpg
+image: /assets/red-team-bg.jpg
 ---
 
 # Post-Exploitation Possibilities for Red Teamers
@@ -302,7 +301,7 @@ Microsoft Defender for Endpoint:
 
 ---
 layout: image-right
-image: ./assets/learning-bg.jpg
+image: /assets/learning-bg.jpg
 ---
 
 # What Can We Learn From This?
