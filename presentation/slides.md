@@ -26,8 +26,6 @@ Now You See Me, Now Your EDR Doesn't
   </a>
 </div>
 
-<!-- TODO: Slide Counter in Footer -->
-
 ---
 layout: image-right
 image: /edr-bg.jpg
@@ -43,15 +41,24 @@ image: /edr-bg.jpg
 
 <v-click><Question>What if there is no file on disk for the running process?</Question></v-click>
 
+<!--
 <div class="mt-5" />
 
 <v-click><Question>What if there is a completely different (benign) file on disk for the running process?</Question></v-click>
+-->
 
 <Footnotes>
   <Footnote number=1>E.g. Process Image Hash, Process Chain</Footnote>
 </Footnotes>
 
 <!-- TODO: Add process tree screenshot to right -->
+<!-- 
+- In Blue Teams und EDRs werden oft Dateien auf der Festplatte genutzt, um Verhalten zu erklären
+- Dateien werden dann weiter investigiert und z.B. mittels VirusTotal geprüft
+[click]
+- Was wäre, wenn wir einen Prozess ohne Dateien auf der Festplatte erzeugen könnten?
+=> Das ist Ziel von Process Ghosting
+ -->
 
 ---
 transition: slide-up
@@ -61,6 +68,7 @@ transition: slide-up
 All my Homies Love Spawning Processes
 
 <div class="scale-200 flex items-center justify-center h-80% w-full">
+
 ```mermaid
 graph LR
 A(Open Executable File)
@@ -71,7 +79,21 @@ D(Create Thread for Execution)
 A --> B --> C
 D --> C
 ```
+
 </div>
+
+<!--
+Um Process Ghosting zu verstehen, zuerst Ablauf der Process Creation auf Windows anschauen:
+1. Öffnen der Datei, aus der wir einen Prozess erstellen möchten
+2. Schreiben der Datei in einen RAM-Abschnitt
+  -> Wichtig: Inhalt Speicherabschnitt und EXE-Datei auf Platte sind jetzt entkoppelt, also: Changes im RAM möglich
+3. Erstellen des Prozesses (erstmal nur eine Hülle)
+4. Erstellen eines Threads und anhängen an den Prozess
+
+Normalerweise passiert das alles in einem Schritt für Entwickler, aber: Legacy Funktion auf Zeiten vor Windows Vista erlaubt in einzelnen Schritten (wurde fürher so gemacht)
+
+Wie werden EDRs in Windows über Prozesserstellungsaktivitäten benachrichtigt?
+-->
 
 ---
 transition: slide-up
@@ -88,6 +110,7 @@ Casting an eye on security vendors' tools supervising Windows' Process Creation
 
 <v-click>
 <div class="flex w-full h-50% items-center justify-center scale-200">
+
 ```mermaid
 graph LR
 A(Open Executable File)
@@ -98,6 +121,7 @@ D(Create Thread for Execution)
 A --> B --> C
 D --> C
 ```
+
 </div>
 </v-click>
 
@@ -111,6 +135,16 @@ There may be a small time window between process creation and security tools bei
 <v-click>
 <ArrowDraw class="absolute right-55 bottom-31 rotate-225 scale-70 fill-red-5" />
 </v-click>
+
+<!--
+- EDRs können sog. Callbacks nutzen, d.h.: Wenn X passiert, führe meine Funktion Y aus
+- Für ProcessCreation gibt es hier Callback `PsSetCreateProcessNotifyRoutineEx`
+- Entgegen dem Namen aber keine Information, wenn Prozess erstellt, sondern wenn erster Thread für Prozess erstellt
+
+- Zeitfenster, in dem wir beliebige Änderungen machen können ohne, dass EDRs dies mitbekommen
+[click]
+- Zwischen Erstellung des Prozesses und Erstellung des ersten zugehörigen Threads
+-->
 
 ---
 layout: two-cols-header
@@ -132,6 +166,7 @@ Gabriel Landau with Elasticsearch in June 2021² :
 ::right::
 
 <div v-click class="scale-70 flex items-center justify-right h-35% w-105%">
+
 ```mermaid
 graph TD
 A(Open Arbitrary File)
@@ -143,6 +178,7 @@ D(Create Process)
 
 A --> F --> G --> B --> C --> D
 ```
+
 </div>
 
 <div v-mark="{ color: '#ff0000', type: 'box' }" class="absolute top-48 right-25 w-45 h-77" />
@@ -159,6 +195,16 @@ A --> F --> G --> B --> C --> D
 
 <!-- TODO: include that NtCreateProcessEx was used before Windows Vista -- legacy now -->
 
+<!--
+- Gabriel Landau verfeinert
+1. Erstellt erst eine unschädliche oder leere EXE-Datei
+2. Setzt sie auf den `DELETE_PENDING` Status, d.h. dass keine weiteren Zugriffe auf die Datei mehr möglich sind
+3. Hat vom Erstellen noch Zugriff und schreibt jetzt maliziösen Content in Datei
+4. Schreibt Datei in Memory
+5. Schließt Zugriff auf Datei => Datei gelöscht
+6. Erstellt Prozess
+-->
+
 ---
 
 # Introducing: Process Ghosting
@@ -173,6 +219,10 @@ A --> F --> G --> B --> C --> D
     </SlidevVideo>
   </div>
 </div>
+
+<!--
+Kurze Demo wie das aussieht
+-->
 
 ---
 layout: center
@@ -198,6 +248,14 @@ How is MS Defender tricked?
 <Footnote>Image Source: <a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
 </Footnotes>
 
+<!--
+Warum ist das so gut?
+[click]
+- Wenn MS Defender Datei zur Überprüfung öffnen möchte => DELETE_PENDING, also keine neuen Zugriffe möglich
+[click]
+- Wenn MS Defender unterliegende Datei für Prozess öffnen möchte => FILE_DELETED, Datei schon gelöscht
+-->
+
 ---
 layout: quote
 ---
@@ -212,6 +270,11 @@ layout: quote
 <Footnote number=2><a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
 </Footnotes>
 
+<!--
+Gemeldet an Microsoft Security Response Center
+aber: Eingreifen scheinbar nicht notwendig
+-->
+
 ---
 layout: image-right
 image: /red-team-bg.jpg
@@ -221,9 +284,9 @@ image: /red-team-bg.jpg
 
 <v-clicks>
 
-1. Take tool `$X` and encrypt it
-1. Copy encrypted tool and process ghosting executable to victim PC
-1. Spawn a ghost process, decrypt tool in memory and load it in process image
+1. Take tool `$X` and encrypt it⁴
+1. Copy encrypted tool and process ghosting tool as executable to victim PC
+1. Spawn ghosting tool, decrypt tool in memory and load it in process image
 1. Tool `$X` can be executed by spawning a thread without EDRs being able to scan it
 
 </v-clicks>
@@ -232,6 +295,25 @@ image: /red-team-bg.jpg
 e.g.: let `$X` = `mimikatz`
 
 </div>
+
+<Footnotes>
+<Footnote number=4 v-click=1>Simple XOR-Encryption does the job</Footnote>
+</Footnotes>
+
+<!--
+Wie kann das als Red Teamer genutzt werden?
+[click]
+1. Ich nehme mir ein beliebiges Tool und verschlüssele es (z.B. mit simplen XOR)
+[click]
+1. Kopieren von verschlüsseltem Tool und Process Ghosting EXE auf PC des Opfers
+[click]
+1. Ausführen meiner Ghosting EXE, dann kann ich mein Tool im Speicher wieder entschlüsseln TODO: CHECK
+[click]
+1. Jetzt kann ich mein Tool ausführen, ohne dass es von EDRs gescannt wurde
+
+[click]
+Beispieltool wäre Mimikatz
+-->
 
 ---
 layout: center
@@ -249,30 +331,39 @@ layout: center
 </div>
 
 <div v-after class="flex w-full justify-center mt-5">
-"Use Elastic Security!"
+"Use Elastic Security!" :)
 </div>
+
+<!--
+Wie konnte ich mich dagegen schützen:
+- MSRC patcht das nicht
+- Report kam von Elastic
+[click]
+- Vorgeschlagene Lösung: Elastic Security benutzen :)
+-->
 
 ---
 
 # Current Situation?
 
 - Sysmon can detect Event ID 25 "Process Tampering"
-- Microsoft rolled out a patch for Windows 10/11, old systems are still vulnerable⁴
+- Microsoft rolled out a patch for Windows 10/11, old systems are still vulnerable⁵
 
 <div v-click>
 <img src="/win11-shadow-block.png" alt=" Windows 11 Silent Access Error blocking Process Ghosting" class="w-220 my-5" />
 
 `0xc00000bb` = `STATUS_NOT_SUPPORTED`
+
 </div>
 
 <Footnotes>
-<Footnote number=4>You are problably vulnerable if you have not installed updates since 2021 (I hope you have)</Footnote>
+<Footnote number=5>You are problably vulnerable if you have not installed updates since 2021 (I hope you have)</Footnote>
 </Footnotes>
 
 <!--
 - Selbe Situation schon ca. ein Jahr früher (Process Herpaderping)
 - Wieder nicht "bar for servicing" erfüllt
-- Sechs Monate später: Sysmon Update um Event zu erkennen -> noch keine Aktion dagegen
+- Sechs Monate später: Sysmon Update um Event zu erkennen -> aber: nur erkennen noch keine Aktion dagegen
 
 - Mittlerweile: Gepatched in Win 10 u. 11
 - Quasi Shadow Block
@@ -286,7 +377,7 @@ layout: center
 
 # Current Situation?
 
-- Many Antivirus/EDR Companies detect (and block) Process Ghosting
+- Many Antivirus/EDR Companies detect (and block) Process Ghosting/Tampering
 - Mostly using AI™/ML™
 
 Microsoft Defender for Endpoint:
@@ -299,6 +390,12 @@ Microsoft Defender for Endpoint:
 
 <!-- CrowdStrike, S1 use Machine Learning, MS Defender Information -->
 
+<!--
+- Mittlerweile erkennen und blockieren viele AVs/EDRs Process Tampering mit KI
+- MS Defender hat eigene Informatoionsseite dazu
+- CrowdStrike und SentinelOne erkennen das scheinbar auch -> Verifizierung schwierig
+-->
+
 ---
 layout: image-right
 image: /learning-bg.jpg
@@ -309,14 +406,21 @@ image: /learning-bg.jpg
 <v-clicks>
 
 - Albeit certain vulnerabilities do not meet the "bar for servicing", they may be dangerous
-- Windows still includes functional legacy code for compatibility reasons (e.g. our used and undocumented `NtProcessCreateEx`⁵), which might be worth exploiting (for pentests)
+- Windows still includes functional legacy code for compatibility reasons (e.g. our used and undocumented `NtProcessCreateEx`⁶), which might be worth exploiting (for pentests)
 - Getting creative with Windows Internals can uncover <i v-after>interesting</i> vulnerabilities
 
 </v-clicks>
 
 <Footnotes>
-<Footnote number=5><code>NtCreateProcessEx</code> is deemed legacy in current Windows versions</Footnote>
+<Footnote number=6><code>NtCreateProcessEx</code> is deemed legacy in current Windows versions</Footnote>
 </Footnotes>
+
+<!--
+Auch wenn alles schon gepacht, gibt es doch Learnings:
+1. Vulnerabilities können gefährlich sein, auch wenn der Hersteller des Produktes das nicht so sieht (aktuelles Beispiel auch wieder: Kubernetes)
+2. Windows shippt immer noch mit viel Legacy Code (teilweise undokumentiert) -> hier kann es sich lohnen genauer hinzuschauen
+3. Windows Internals sind sehr spannend und können interessante Vulnerablilities zutage fördern
+-->
 
 ---
 layout: center
@@ -467,5 +571,22 @@ layout: center
 <span class="font-mono text-red-6 font-800 mr-2" style="animation: flicker 4s infinite, textShadow 10s infinite;">#</span>
 <span class="font-mono text-red-6 font-800" style="animation: flicker 4s infinite, textShadow 10s infinite;">Happy hacking!</span>
 <span class="font-mono text-red-6 font-800 mr-2" style="animation: flicker 4s infinite, textShadow 10s infinite, blinker 1s step-start infinite;">|</span>
+
+<div class="mt-10" />
+
+<div class="grid mb-2">
+<span class="mb-0">Sources:</span>
+<span class="text-gray text-2 mt-0">Last accessed 06.02.2026</span>
+</div>
+
+<div class="text-xs">
+
+- https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack
+- https://whokilleddb.github.io/blogs/posts/process-ghosting/
+- https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/
+- https://www.hackingarticles.in/process-ghosting-attack/
+- https://tarnkappe.info/artikel/it-sicherheit/malware/process-ghosting-neue-malware-technik-trickst-antivirenprogramme-aus-148971.html
+
+</div>
 
 <PoweredBySlidev class="absolute bottom-10 left-10 b-none" />

