@@ -55,8 +55,7 @@ image: /edr-bg.jpg
 <!-- 
 - In Blue Teams und EDRs werden oft Dateien auf der Festplatte genutzt, um Verhalten zu erklären
 - Dateien werden dann weiter investigiert und z.B. mittels VirusTotal geprüft
-[click]
-- Was wäre, wenn wir einen Prozess ohne Dateien auf der Festplatte erzeugen könnten?
+- [click] Was wäre, wenn wir einen Prozess ohne Dateien auf der Festplatte erzeugen könnten?\
 => Das ist Ziel von Process Ghosting
  -->
 
@@ -90,7 +89,8 @@ Um Process Ghosting zu verstehen, zuerst Ablauf der Process Creation auf Windows
 3. Erstellen des Prozesses (erstmal nur eine Hülle)
 4. Erstellen eines Threads und anhängen an den Prozess
 
-Normalerweise passiert das alles in einem Schritt für Entwickler, aber: Legacy Funktion auf Zeiten vor Windows Vista erlaubt in einzelnen Schritten (wurde fürher so gemacht)
+Normalerweise alles in einem Schritt für Entwickler, aber: \
+Legacy Funktion auf Zeiten vor Windows Vista erlaubt in einzelnen Schritten (wurde früher so gemacht)
 
 Wie werden EDRs in Windows über Prozesserstellungsaktivitäten benachrichtigt?
 -->
@@ -141,9 +141,8 @@ There may be a small time window between process creation and security tools bei
 - Für ProcessCreation gibt es hier Callback `PsSetCreateProcessNotifyRoutineEx`
 - Entgegen dem Namen aber keine Information, wenn Prozess erstellt, sondern wenn erster Thread für Prozess erstellt
 
-- Zeitfenster, in dem wir beliebige Änderungen machen können ohne, dass EDRs dies mitbekommen
-[click]
-- Zwischen Erstellung des Prozesses und Erstellung des ersten zugehörigen Threads
+- [click] Zeitfenster, in dem wir beliebige Änderungen machen können ohne, dass EDRs dies mitbekommen
+- [click] Zwischen Erstellung des Prozesses und Erstellung des ersten zugehörigen Threads
 -->
 
 ---
@@ -250,10 +249,8 @@ How is MS Defender tricked?
 
 <!--
 Warum ist das so gut?
-[click]
-- Wenn MS Defender Datei zur Überprüfung öffnen möchte => DELETE_PENDING, also keine neuen Zugriffe möglich
-[click]
-- Wenn MS Defender unterliegende Datei für Prozess öffnen möchte => FILE_DELETED, Datei schon gelöscht
+- [click] Wenn MS Defender Datei zur Überprüfung öffnen möchte => DELETE_PENDING, also keine neuen Zugriffe möglich
+- [click] Wenn MS Defender unterliegende Datei für Prozess öffnen möchte => FILE_DELETED, Datei schon gelöscht
 -->
 
 ---
@@ -302,14 +299,11 @@ e.g.: let `$X` = `mimikatz`
 
 <!--
 Wie kann das als Red Teamer genutzt werden?
-[click]
-1. Ich nehme mir ein beliebiges Tool und verschlüssele es (z.B. mit simplen XOR)
-[click]
-1. Kopieren von verschlüsseltem Tool und Process Ghosting EXE auf PC des Opfers
-[click]
-1. Ausführen meiner Ghosting EXE, dann kann ich mein Tool im Speicher wieder entschlüsseln TODO: CHECK
-[click]
-1. Jetzt kann ich mein Tool ausführen, ohne dass es von EDRs gescannt wurde
+
+1. [click] Ich nehme mir ein beliebiges Tool und verschlüssele es (z.B. mit simplen XOR)
+1. [click] Kopieren von verschlüsseltem Tool und Process Ghosting EXE auf PC des Opfers
+1. [click] Ausführen meiner Ghosting EXE, dann kann ich mein Tool im Speicher wieder entschlüsseln TODO: CHECK
+1. [click] Jetzt kann ich mein Tool ausführen, ohne dass es von EDRs gescannt wurde
 
 [click]
 Beispieltool wäre Mimikatz
@@ -338,8 +332,7 @@ layout: center
 Wie konnte ich mich dagegen schützen:
 - MSRC patcht das nicht
 - Report kam von Elastic
-[click]
-- Vorgeschlagene Lösung: Elastic Security benutzen :)
+- [click] Vorgeschlagene Lösung: Elastic Security benutzen :)
 -->
 
 ---
@@ -364,6 +357,8 @@ Wie konnte ich mich dagegen schützen:
 - Selbe Situation schon ca. ein Jahr früher (Process Herpaderping)
 - Wieder nicht "bar for servicing" erfüllt
 - Sechs Monate später: Sysmon Update um Event zu erkennen -> aber: nur erkennen noch keine Aktion dagegen
+
+x
 
 - Mittlerweile: Gepatched in Win 10 u. 11
 - Quasi Shadow Block
@@ -417,9 +412,9 @@ image: /learning-bg.jpg
 
 <!--
 Auch wenn alles schon gepacht, gibt es doch Learnings:
-1. Vulnerabilities können gefährlich sein, auch wenn der Hersteller des Produktes das nicht so sieht (aktuelles Beispiel auch wieder: Kubernetes)
-2. Windows shippt immer noch mit viel Legacy Code (teilweise undokumentiert) -> hier kann es sich lohnen genauer hinzuschauen
-3. Windows Internals sind sehr spannend und können interessante Vulnerablilities zutage fördern
+1. [click] Vulnerabilities können gefährlich sein, auch wenn der Hersteller des Produktes das nicht so sieht (aktuelles Beispiel auch wieder: Kubernetes)
+2. [click] Windows shippt immer noch mit viel Legacy Code (teilweise undokumentiert) -> hier kann es sich lohnen genauer hinzuschauen
+3. [click] Windows Internals sind sehr spannend und können interessante Vulnerablilities zutage fördern
 -->
 
 ---
