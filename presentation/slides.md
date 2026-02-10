@@ -203,25 +203,6 @@ A --> F --> G --> B --> C --> D
 -->
 
 ---
-
-# Introducing: Process Ghosting
-
-<div class="flex justify-center mt-5">
-  <div class="w-140"> <SlidevVideo v-click autoplay controls class="rounded-lg shadow-xl">
-      <source src="/win8-demo.webm" type="video/webm" />
-      <p>
-        Your browser does not support videos. You may download it
-        <a href="/win8-demo.webm">here</a>.
-      </p>
-    </SlidevVideo>
-  </div>
-</div>
-
-<!--
-Kurze Demo wie das aussieht
--->
-
----
 layout: center
 ---
 
@@ -249,6 +230,25 @@ How is MS Defender tricked?
 Warum ist das so gut?
 - [click] Wenn MS Defender Datei zur Überprüfung öffnen möchte => DELETE_PENDING, also keine neuen Zugriffe möglich
 - [click] Wenn MS Defender unterliegende Datei für Prozess öffnen möchte => FILE_DELETED, Datei schon gelöscht
+-->
+
+---
+
+# Introducing: Process Ghosting
+
+<div class="flex justify-center mt-5">
+  <div class="w-140"> <SlidevVideo v-click autoplay controls class="rounded-lg shadow-xl">
+      <source src="/win8-demo.webm" type="video/webm" />
+      <p>
+        Your browser does not support videos. You may download it
+        <a href="/win8-demo.webm">here</a>.
+      </p>
+    </SlidevVideo>
+  </div>
+</div>
+
+<!--
+Kurze Demo wie das aussieht
 -->
 
 ---
