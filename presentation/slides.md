@@ -51,7 +51,6 @@ image: /edr-bg.jpg
   <Footnote number=1>E.g. Process Image Hash, Process Chain</Footnote>
 </Footnotes>
 
-<!-- TODO: Add process tree screenshot to right -->
 <!-- 
 - In Blue Teams und EDRs werden oft Dateien auf der Festplatte genutzt, um Verhalten zu erklären
 - Dateien werden dann weiter investigiert und z.B. mittels VirusTotal geprüft
@@ -75,8 +74,7 @@ B(Create Image Section)
 C(Create Process)
 D(Create Thread for Execution)
 
-A --> B --> C
-D --> C
+A --> B --> C --> D
 ```
 
 </div>
@@ -118,13 +116,13 @@ B(Create Image Section)
 C(Create Process)
 D(Create Thread for Execution)
 
-A --> B --> C
-D --> C
+A --> B --> C --> D
 ```
 
 </div>
 </v-click>
 
+<!-- TODO: Maybe delete or make timeframes better visible -->
 
 <v-click class="mb-5">
 <Important>
@@ -174,8 +172,9 @@ G(Write Malicious Content to File)
 B(Create Image Section)
 C(Close File Handle, i.e. Delete Executable File)
 D(Create Process)
+E(Create Thread for Execution)
 
-A --> F --> G --> B --> C --> D
+A --> F --> G --> B --> C --> D --> E
 ```
 
 </div>
@@ -192,8 +191,6 @@ A --> F --> G --> B --> C --> D
 <!-- Delete Pending == Cannot be opened by for scanning (STATUS_DELETE_PENDING) -->
 <!-- I/O after deletion == STATUS_FILE_DELETED -->
 
-<!-- TODO: include that NtCreateProcessEx was used before Windows Vista -- legacy now -->
-
 <!--
 - Gabriel Landau verfeinert
 1. Erstellt erst eine unschädliche oder leere EXE-Datei
@@ -202,6 +199,7 @@ A --> F --> G --> B --> C --> D
 4. Schreibt Datei in Memory
 5. Schließt Zugriff auf Datei => Datei gelöscht
 6. Erstellt Prozess
+7. Erstellt dann Thread für Prozess
 -->
 
 ---
@@ -570,7 +568,7 @@ layout: center
 <div class="mt-10" />
 
 <div class="grid mb-2">
-<span class="mb-0">Sources:</span>
+<span class="mb-0">Sources</span>
 <span class="text-gray text-2 mt-0">Last accessed 06.02.2026</span>
 </div>
 
