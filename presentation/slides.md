@@ -1,5 +1,5 @@
 ---
-theme: ./theme
+theme: default
 background: /title-bg-2.jpg
 title: Process Ghosting
 info: Hiding from EDRs in plain sight
