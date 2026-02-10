@@ -65,12 +65,12 @@ transition: slide-up
 # Process Creation on Windows
 All my Homies Love Spawning Processes
 
-<div class="scale-200 flex items-center justify-center h-80% w-full">
+<div class="scale-250 flex items-center justify-center h-80% w-full">
 
 ```mermaid
 graph LR
 A(Open Executable File)
-B(Create Image Section)
+B(Create Image Section in RAM)
 C(Create Process)
 D(Create Thread for Execution)
 
@@ -107,12 +107,12 @@ Casting an eye on security vendors' tools supervising Windows' Process Creation
 <div class="mt-5" />
 
 <v-click>
-<div class="flex w-full h-50% items-center justify-center scale-200">
+<div class="flex w-full h-50% items-center justify-center scale-250">
 
 ```mermaid
 graph LR
 A(Open Executable File)
-B(Create Image Section)
+B(Create Image Section in RAM)
 C(Create Process)
 D(Create Thread for Execution)
 
@@ -131,7 +131,7 @@ There may be a small time window between process creation and security tools bei
 </v-click>
 
 <v-click>
-<ArrowDraw class="absolute right-55 bottom-31 rotate-225 scale-70 fill-red-5" />
+<ArrowDraw class="absolute right-56 bottom-33 rotate-240 scale-70 fill-red-5" />
 </v-click>
 
 <!--
@@ -162,24 +162,24 @@ Gabriel Landau with Elasticsearch in June 2021² :
 
 ::right::
 
-<div v-click class="scale-70 flex items-center justify-right h-35% w-105%">
+<div v-click class="scale-70 flex items-center justify-right h-30% w-105%">
 
 ```mermaid
 graph TD
 A(Open Arbitrary File)
 F(Set Delete-Pending State for File)
 G(Write Malicious Content to File)
-B(Create Image Section)
-C(Close File Handle, i.e. Delete Executable File)
-D(Create Process)
-E(Create Thread for Execution)
+B(Create Image Section in RAM)
+C(Delete Executable File on Disk)
+D(Create Process from Malicious Content in RAM)
 
-A --> F --> G --> B --> C --> D --> E
+A --> F --> G --> B --> C --> D
 ```
 
 </div>
 
-<div v-mark="{ color: '#ff0000', type: 'box' }" class="absolute top-48 right-25 w-45 h-77" />
+<div v-mark="{ color: '#ff0000', type: 'box' }" class="absolute top-43 right-25 w-45 h-82" />
+<span v-after class="text-red-6 text-stroke-sm absolute bottom-50 right-75">No further accesses<br/>to file possible!</span>
 
 <Footnotes>
 <Footnote number=2><a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
