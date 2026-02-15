@@ -60,32 +60,56 @@ image: /edr-bg.jpg
 
 ---
 transition: slide-up
+layout: two-cols
 ---
 
 # Process Creation on Windows
 All my Homies Love Spawning Processes
 
-<div class="scale-250 flex items-center justify-center h-80% w-full">
+Simplified:
 
-```mermaid
-graph LR
-A(Open Executable File)
-B(Create Image Section in RAM)
-C(Create Process)
-D(Create Thread for Execution)
+1. Open File on Disk
+2. Copy File in RAM\
+   → Changes on the disk will have no\
+   effect to image in RAM anymore!
+1. Create Process\
+   → Only a mantle containing e.g. env vars
+4. Attach Thread
 
-A --> B --> C --> D
-```
 
+<div class="absolute top-60 left-110">
+  <span class="absolute top-20 w-20 text-center"><code>.exe</code> on Disk</span>
+  <line-md-file v-click.hide="[4,5]" class="absolute w-auto h-20" />
+  <line-md-file-search v-click="[1,3]" class="absolute w-auto h-20" />
+  <line-md-file-filled v-click="2" v-motion 
+  :initial="{ x: -300 }"
+  :enter="{ x: 0 }"
+  class="absolute w-auto h-20 top-3 left-90" />
+  <line-md-file-document-plus v-click="[4,5]" class="absolute w-auto h-20 z-1 color-red-5" />
+  <line-md-cog v-click="7" v-motion 
+  :initial="{ y: 100 }"
+  :enter="{ y: 0 }"
+  class="absolute top-10 left-95 w-auto h-10 z-1 color-black"/>
+
+  <div v-click="6">
+    <fluent-rectangle-portrait-48-regular class="w-auto h-40 absolute top--10 left-80" />
+    <span class="absolute top--4.5 left-92">Process</span>
+  </div>
+
+  <ArrowDraw v-click="[2,3]" class="absolute fill-white top-5 left-20" />
 </div>
+
+
+
+<img src="/ram.svg" class="w-75 absolute top-60 left-165 z--1"/>
 
 <!--
 Um Process Ghosting zu verstehen, zuerst Ablauf der Process Creation auf Windows anschauen:
-1. Öffnen der Datei, aus der wir einen Prozess erstellen möchten
-2. Schreiben der Datei in einen RAM-Abschnitt
-  -> Wichtig: Inhalt Speicherabschnitt und EXE-Datei auf Platte sind jetzt entkoppelt, also: Changes im RAM möglich
-3. Erstellen des Prozesses (erstmal nur eine Hülle)
-4. Erstellen eines Threads und anhängen an den Prozess
+1. [click] Öffnen der Datei, aus der wir einen Prozess erstellen möchten
+2. [click] Schreiben der Datei in einen RAM-Abschnitt
+  -> [click][click] Wichtig: Inhalt Speicherabschnitt und EXE-Datei auf Platte sind jetzt entkoppelt, also: Changes im RAM möglich [click]
+3. [click] Erstellen des Prozesses (erstmal nur eine Hülle)
+4. [click] Erstellen eines Threads und anhängen an den Prozess
 
 Normalerweise alles in einem Schritt für Entwickler, aber: \
 Legacy Funktion auf Zeiten vor Windows Vista erlaubt in einzelnen Schritten (wurde früher so gemacht)
