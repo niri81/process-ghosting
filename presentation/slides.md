@@ -116,7 +116,7 @@ Um Process Ghosting zu verstehen, zuerst Ablauf der Process Creation auf Windows
 1. [click] Öffnen der Datei, aus der wir einen Prozess erstellen möchten
 2. [click] Schreiben der Datei in einen RAM-Abschnitt
   -> [click][click] Wichtig: Inhalt Speicherabschnitt und EXE-Datei auf Platte sind jetzt entkoppelt, also: Changes im RAM möglich [click]
-1. [click] Erstellen des Prozesses (erstmal nur eine Hülle)
+3. [click] Erstellen des Prozesses (erstmal nur eine Hülle)
 4. [click] Erstellen eines Threads und anhängen an den Prozess
 
 Normalerweise alles in einem Schritt für Entwickler, aber: \
@@ -138,32 +138,10 @@ Casting an eye on security vendors' tools supervising Windows' Process Creation
 
 <div class="mt-5" />
 
-<v-click>
-<div class="flex w-full h-50% items-center justify-center scale-250">
-
-```mermaid
-graph LR
-A(Open Executable File)
-B(Create Image Section in RAM)
-C(Create Process)
-D(Create Thread for Execution)
-
-A --> B --> C --> D
-```
-
-</div>
-</v-click>
-
-<!-- TODO: Maybe delete or make timeframes better visible -->
-
 <v-click class="mb-5">
 <Important>
 There may be a small time window between process creation and security tools being notified about it.
 </Important>
-</v-click>
-
-<v-click>
-<ArrowDraw class="absolute right-56 bottom-33 rotate-240 scale-70 fill-red-5" />
 </v-click>
 
 <!--
@@ -172,7 +150,6 @@ There may be a small time window between process creation and security tools bei
 - Entgegen dem Namen aber keine Information, wenn Prozess erstellt, sondern wenn erster Thread für Prozess erstellt
 
 - [click] Zeitfenster, in dem wir beliebige Änderungen machen können ohne, dass EDRs dies mitbekommen
-- [click] Zwischen Erstellung des Prozesses und Erstellung des ersten zugehörigen Threads
 -->
 
 ---
@@ -233,6 +210,106 @@ A --> F --> G --> B --> C --> D
 6. Erstellt Prozess
 7. Erstellt dann Thread für Prozess
 -->
+
+---
+layout: two-cols
+---
+
+# Introducing: Process Ghosting
+"Our" Strategy for Hiding from Security Solutions
+
+<ol>
+  <li v-click="1">
+    Open File on Disk and set <code>delete</code> flag
+    <p class="m-0! w-80">
+    → Existing accesses remain, new accesses not possible anymore!
+    </p>
+  </li>
+  <li v-click="2">Write malicious code in file
+    <p class="m-0! w-80" v-click="4">
+    → AV/EDR Engine cannot access file for scanning (<code>delete</code> flag)
+    </p>
+  </li>
+  <li v-click="6"> 
+  Copy File in RAM
+  </li>
+  <li v-click="8">Delete <code>.exe</code> File</li>
+  <li v-click="9">Create Process</li>
+  <li v-click="10">
+    Attach Thread
+    <p class="m-0! w-80" v-click="4">
+    → AV/EDR Engine get's notified via callback but cannot access deleted file
+    </p>
+  </li>
+</ol>
+
+<div class="absolute top-60 left-110">
+  <span class="absolute top-20 w-20 text-center" v-click.hide="8"><code>.exe</code> on Disk</span>
+  <line-md-file v-click.hide="1" class="absolute w-auto h-20" />
+  <line-md-file-cancel v-click="[1,2]" class="absolute w-auto h-20" />
+
+  <!-- File Overwrite malicious -->
+  <line-md-file-cancel v-click="[2,8]" class="absolute w-auto h-20 color-red-5" />
+  <mdi-virus-outline v-click="[2,8]" v-motion 
+  :initial="{ y: -50 }"
+  :enter="{ y: 0 }" class="absolute w-auto h-10 color-red-5 top--10 left-5" />
+
+  <!-- AV Engine -->
+  <div class="absolute top-35 left--5" v-click="[3,5]" v-motion
+  :initial="{y:100}"
+  :enter="{y:0}">
+  <div v-mark.crossed-off="{at: [4,5], color: 'red'}" class="absolute top--5 left-2.5 w-30 h-20" />
+  <mdi-shield-bug-outline
+  class="absolute left-8 top-15 w-auto h-20 z-1 color-yellow" />
+  <ArrowDraw class="fill-yellow top-32 left--8 rotate-270 scale-40" />
+  <mdi-magnify class="scale-130 absolute left-20 bottom-3 color-yellow" />
+  <span class="absolute top-35 w-full text-center">AV/EDR</span>
+  </div>
+
+  <!-- File Copy in RAM -->
+  <line-md-file-filled v-click="6" v-motion 
+  :initial="{ x: -300 }"
+  :enter="{ x: 0 }"
+  class="absolute w-auto h-20 top-3 left-90 color-red-5" />
+  <ArrowDraw v-click="[6,7]" class="absolute fill-red-5 top-5 left-20" />
+
+  <!-- Delete File -->
+  <mdi-trash-can-outline class="absolute w-auto h-20 color-red-5" v-click="8" />
+  <span class="absolute top-20 w-20 text-center" v-click="8"><code>.exe</code> deleted</span>
+
+  <!-- Process -->
+
+  <div v-click="9">
+    <fluent-rectangle-portrait-48-regular class="w-auto h-40 absolute top--10 left-80" />
+    <span class="absolute top--4.5 left-92">Process</span>
+  </div>
+
+  <!-- Thread -->
+  <line-md-cog v-click="10" v-motion 
+  :initial="{ y: 100 }"
+  :enter="{ y: 0 }"
+  class="absolute top-10 left-95 w-auto h-10 z-1 color-black"/>
+
+  <!-- AV Engine -->
+  <div class="absolute top-35 left--5" v-click="[10,13]" v-motion
+  :initial="{y:100}"
+  :enter="{y:0}">
+  <div v-mark.crossed-off="{at: [11,13], color: 'red'}" class="absolute top--5 left-2.5 w-30 h-20" />
+  <mdi-shield-bug-outline
+  class="absolute left-8 top-15 w-auto h-20 z-1 color-yellow" />
+  <ArrowDraw class="fill-yellow rotate-270 scale-40" v-click="11"/>
+  <mdi-magnify class="scale-130 absolute left-20 bottom-3 color-yellow" v-click="11" />
+  <ArrowDraw class="absolute fill-yellow top-5 left-40 rotate--30" v-click="10" />
+  <mdi-magnify class="scale-180 absolute left-60 top-15 color-yellow" v-click="10" />
+  <span class="absolute top-35 w-full text-center">AV/EDR</span>
+  <span class="absolute top-15 left-70 w-30" v-click="10">Via Callback</span>
+  </div>
+  
+</div>
+
+
+
+<img src="/ram.svg" class="w-75 absolute top-60 left-165 z--1"/>
 
 ---
 layout: center
@@ -611,6 +688,7 @@ layout: center
 - https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/
 - https://www.hackingarticles.in/process-ghosting-attack/
 - https://tarnkappe.info/artikel/it-sicherheit/malware/process-ghosting-neue-malware-technik-trickst-antivirenprogramme-aus-148971.html
+- <a href="https://www.freepik.com/free-vector/modern-cpu-collection-with-flat-design_3317258.htm">RAM Image by freepik</a>
 
 </div>
 

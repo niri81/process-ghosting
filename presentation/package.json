@@ -10,6 +10,7 @@
   "dependencies": {
     "@iconify-json/fluent": "^1.2.37",
     "@iconify-json/line-md": "^1.2.13",
+    "@iconify-json/mdi": "^1.2.3",
     "@iconify/vue": "^5.0.0",
     "@slidev/cli": "^52.11.3",
     "@slidev/theme-default": "latest",
