@@ -106,7 +106,7 @@ Simplified:
   :initial="{ x: -300 }"
   :enter="{ x: 0 }"
   class="absolute w-auto h-20 top-3 left-90" />
-  <line-md-file-document-plus v-click="[4,5]" class="absolute w-auto h-20 z-1 color-red-5" />
+  <line-md-file-document-plus v-click="[4,5]" class="absolute w-auto h-20 z-1 color-green-5" />
   <line-md-cog v-click="7" v-motion 
   :initial="{ y: 100 }"
   :enter="{ y: 0 }"
@@ -200,9 +200,6 @@ A --> F --> G --> B --> C --> D
 
 </div>
 
-<div v-mark="{ color: '#ff0000', type: 'box' }" class="absolute top-43 right-25 w-45 h-82" />
-<span v-after class="text-red-6 text-stroke-sm absolute bottom-50 right-75">No further accesses<br/>to file possible!</span>
-
 <Footnotes>
 <Footnote number=2><a href="https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/de/blog/process-ghosting-a-new-executable-image-tampering-attack</a>, last accessed: 25.01.2026</Footnote>
 <Footnote number=3>
@@ -215,13 +212,10 @@ A --> F --> G --> B --> C --> D
 
 <!--
 - Gabriel Landau verfeinert
-1. Erstellt erst eine unschädliche oder leere EXE-Datei
-2. Setzt sie auf den `DELETE_PENDING` Status, d.h. dass keine weiteren Zugriffe auf die Datei mehr möglich sind
-3. Hat vom Erstellen noch Zugriff und schreibt jetzt maliziösen Content in Datei
-4. Schreibt Datei in Memory
-5. Schließt Zugriff auf Datei => Datei gelöscht
-6. Erstellt Prozess
-7. Erstellt dann Thread für Prozess
+- Nutzt Windows Funktionalität für Löschen von Dateien → Abuse
+- Neue Zugriffe werden blockiert, alte bleiben bestehen bis geschlossen → dann gelöscht
+
+Rechts einmal als Flowchart, aber Schaubild
 -->
 
 ---
@@ -538,7 +532,7 @@ image: /learning-bg.jpg
 
 - Albeit certain vulnerabilities do not meet the "bar for servicing", they may be dangerous
 - Windows still includes functional legacy code for compatibility reasons (e.g. our used and undocumented `NtProcessCreateEx`⁶), which might be worth exploiting (for pentests)
-- Getting creative with Windows Internals can uncover <i v-after>interesting</i> vulnerabilities
+- Sometimes it is not about finding vulnerabilities but abusing Design/Architectural Flaws for exploits
 
 </v-clicks>
 
