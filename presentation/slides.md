@@ -95,7 +95,12 @@ Simplified:
     → Only a mantle containing e.g. env vars
     </p>  
   </li>
-  <li v-click="7">Attach Thread</li>
+  <li v-click="7">
+    Attach Thread
+    <p class="m-0!">
+    → AV/EDR is notified of process
+    </p>
+  </li>
 </ol>
 
 <div class="absolute top-60 left-110">
@@ -118,6 +123,14 @@ Simplified:
   </div>
 
   <ArrowDraw v-click="[2,3]" class="absolute fill-white top-5 left-20" />
+
+  <div v-click="7" v-motion
+  :initial="{ y: 100 }"
+  :enter="{ y: 0 }">
+  <mdi-shield-bug-outline
+  class="absolute left-50 top-30 w-auto h-20 z-1 color-yellow" />
+  <span class="absolute top-50 left-52 w-full text-center">AV/EDR</span>
+  </div>
 </div>
 
 
@@ -135,34 +148,7 @@ Um Process Ghosting zu verstehen, zuerst Ablauf der Process Creation auf Windows
 Normalerweise alles in einem Schritt für Entwickler, aber: \
 Legacy Funktion auf Zeiten vor Windows Vista erlaubt in einzelnen Schritten (wurde früher so gemacht)
 
-Wie werden EDRs in Windows über Prozesserstellungsaktivitäten benachrichtigt?
--->
-
----
-transition: slide-up
----
-
-# Process Creation on Windows
-Casting an eye on security vendors' tools supervising Windows' Process Creation
-
-- Register callbacks via `PsSetCreateProcessNotifyRoutineEx`
-<!-- Process Support module -> Notify driver about process creation and termination events -->
-- Notification when **first thread** is **created**
-
-<div class="mt-5" />
-
-<v-click class="mb-5">
-<Important>
-There may be a small time window between process creation and security tools being notified about it.
-</Important>
-</v-click>
-
-<!--
-- EDRs können sog. Callbacks nutzen, d.h.: Wenn X passiert, führe meine Funktion Y aus
-- Für ProcessCreation gibt es hier Callback `PsSetCreateProcessNotifyRoutineEx`
-- Entgegen dem Namen aber keine Information, wenn Prozess erstellt, sondern wenn erster Thread für Prozess erstellt
-
-- [click] Zeitfenster, in dem wir beliebige Änderungen machen können ohne, dass EDRs dies mitbekommen
+Wie funktioniert Process Ghosting?
 -->
 
 ---
