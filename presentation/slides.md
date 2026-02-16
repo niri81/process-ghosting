@@ -26,6 +26,13 @@ Now You See Me, Now Your EDR Doesn't
   </a>
 </div>
 
+<!--
+- Process Ghosting
+- Möglichkeit um vor EDR und AV Lösungen zu verstecken
+
+Wie werden auffällige Prozesse untersucht?
+-->
+
 ---
 layout: image-right
 image: /edr-bg.jpg
@@ -52,11 +59,17 @@ image: /edr-bg.jpg
 </Footnotes>
 
 <!-- 
+Bei auffälligen Prozessen:
 - In Blue Teams und EDRs werden oft Dateien auf der Festplatte genutzt, um Verhalten zu erklären
 - Dateien werden dann weiter investigiert und z.B. mittels VirusTotal geprüft
+
+[click] Wichtig ist Foksus auf Datei auf Festplatte
+
 - [click] Was wäre, wenn wir einen Prozess ohne Dateien auf der Festplatte erzeugen könnten?\
 => Das ist Ziel von Process Ghosting
- -->
+
+Wie wird Prozess in Windows erstellt?
+-->
 
 ---
 transition: slide-up
@@ -171,7 +184,7 @@ Gabriel Landau with Elasticsearch in June 2021² :
 
 ::right::
 
-<div v-click class="scale-70 flex items-center justify-right h-30% w-105%">
+<div class="scale-70 flex items-center justify-right h-30% w-105%">
 
 ```mermaid
 graph TD
@@ -217,6 +230,8 @@ layout: two-cols
 
 # Introducing: Process Ghosting
 "Our" Strategy for Hiding from Security Solutions
+
+Simplified:
 
 <ol>
   <li v-click="1">
@@ -294,7 +309,7 @@ layout: two-cols
   <div class="absolute top-35 left--5" v-click="[10,13]" v-motion
   :initial="{y:100}"
   :enter="{y:0}">
-  <div v-mark.crossed-off="{at: [11,13], color: 'red'}" class="absolute top--5 left-2.5 w-30 h-20" />
+  <div v-mark.crossed-off="{at: [12,13], color: 'red'}" class="absolute top--5 left-2.5 w-30 h-20" />
   <mdi-shield-bug-outline
   class="absolute left-8 top-15 w-auto h-20 z-1 color-yellow" />
   <ArrowDraw class="fill-yellow rotate-270 scale-40" v-click="11"/>
@@ -307,9 +322,21 @@ layout: two-cols
   
 </div>
 
-
-
 <img src="/ram.svg" class="w-75 absolute top-60 left-165 z--1"/>
+
+<!--
+- Gleicher Anfang
+- [click] Delete Flag wird gesetzt, keine weiteren Zugriffe (eingeschränktes Halteverbot Zeichen)
+- [click] Malicious Content in Datei
+- [click][click] Wenn jetzt EDR/AV schauen will: Kein Zugriff wegen Delete-Zustand
+- [click][click] Datei mit malicious Code wird in RAM kopiert
+- [click][click] `.exe` File wird gelöscht
+- [click] Prozess wird erstellt
+- [click] Thread wird erstellt, Info an AV wegen Callback
+- [click] Prüfung der ursprünglichen Datei → [click] nicht möglich weil gelöscht
+
+[click] Also: Datei ausgeführt, ohne dass AV sie anschauen kann
+-->
 
 ---
 layout: center
@@ -377,6 +404,8 @@ layout: quote
 <!--
 Gemeldet an Microsoft Security Response Center
 aber: Eingreifen scheinbar nicht notwendig
+
+[click] POV
 -->
 
 ---
