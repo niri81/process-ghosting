@@ -162,7 +162,7 @@ layout: two-cols-header
 
 ::left::
 
-Gabriel Landau with Elasticsearch in June 2021² :
+Gabriel Landau with Elastic in June 2021² :
 
 - Use Windows file deletion internals to hide process
   - Files are not accessible anymore in Delete Pending state
