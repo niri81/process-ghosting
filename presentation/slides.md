@@ -68,14 +68,22 @@ All my Homies Love Spawning Processes
 
 Simplified:
 
-1. Open File on Disk
-2. Copy File in RAM\
-   → Changes on the disk will have no\
-   effect to image in RAM anymore!
-1. Create Process\
-   → Only a mantle containing e.g. env vars
-4. Attach Thread
-
+<ol>
+  <li v-click="1">Open File on Disk</li>
+  <li v-click="2">Copy File in RAM
+    <p class="m-0! w-80" v-click="4">
+    → Changes on the disk will have no
+    effect to image in RAM anymore!
+    </p>
+  </li>
+  <li v-click="6"> 
+  Create Process 
+    <p class="m-0!">
+    → Only a mantle containing e.g. env vars
+    </p>  
+  </li>
+  <li v-click="7">Attach Thread</li>
+</ol>
 
 <div class="absolute top-60 left-110">
   <span class="absolute top-20 w-20 text-center"><code>.exe</code> on Disk</span>
@@ -108,7 +116,7 @@ Um Process Ghosting zu verstehen, zuerst Ablauf der Process Creation auf Windows
 1. [click] Öffnen der Datei, aus der wir einen Prozess erstellen möchten
 2. [click] Schreiben der Datei in einen RAM-Abschnitt
   -> [click][click] Wichtig: Inhalt Speicherabschnitt und EXE-Datei auf Platte sind jetzt entkoppelt, also: Changes im RAM möglich [click]
-3. [click] Erstellen des Prozesses (erstmal nur eine Hülle)
+1. [click] Erstellen des Prozesses (erstmal nur eine Hülle)
 4. [click] Erstellen eines Threads und anhängen an den Prozess
 
 Normalerweise alles in einem Schritt für Entwickler, aber: \
