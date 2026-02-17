@@ -166,7 +166,7 @@ Gabriel Landau with Elastic in June 2021² :
 
 - Use Windows file deletion internals to hide process
   - Files are not accessible anymore in Delete Pending state
-  - Already open handles <span v-mark="{color: 'red'}">remain valid</span>
+  - Already open handles remain valid
 
 ::right::
 
@@ -364,7 +364,9 @@ Warum ist das so gut?
 </div>
 
 <!--
-Kurze Demo wie das aussieht
+- Kurze Demo wie das aussieht
+- Windows 8
+- Selbstgeschriebenes Tool
 -->
 
 ---
@@ -512,13 +514,13 @@ layout: image-right
 image: /learning-bg.jpg
 ---
 
-# What Can We Learn From This?
+# What Can We Learn from This?
 
 <v-clicks>
 
 - Albeit certain vulnerabilities do not meet the "bar for servicing", they may be dangerous
 - Windows still includes functional legacy code for compatibility reasons (e.g. our used and undocumented `NtProcessCreateEx`⁶), which might be worth exploiting (for pentests)
-- Sometimes it is not about finding vulnerabilities but abusing Design/Architectural Flaws for exploits
+- Sometimes it is not about finding vulnerabilities but abusing design/architectural flaws
 
 </v-clicks>
 
@@ -530,7 +532,7 @@ image: /learning-bg.jpg
 Auch wenn alles schon gepacht, gibt es doch Learnings:
 1. [click] Vulnerabilities können gefährlich sein, auch wenn der Hersteller des Produktes das nicht so sieht (aktuelles Beispiel auch wieder: Kubernetes)
 2. [click] Windows shippt immer noch mit viel Legacy Code (teilweise undokumentiert) -> hier kann es sich lohnen genauer hinzuschauen
-3. [click] Windows Internals sind sehr spannend und können interessante Vulnerablilities zutage fördern
+3. [click] Es geht nicht immer um krasse Vulnerabilities, sondern manchmal auch um Design Flaws
 -->
 
 ---
